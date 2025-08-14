@@ -94,9 +94,9 @@ class Interface(object):
 
     def __fill_squares(self,
                        percents: List[float | int]):
-        for square_num in range(1, 4):
-            percent = percents[square_num - 1]
-            y_down = square_num * 15 - 1
+        for square_num in range(4):
+            percent = percents[square_num]
+            y_down = (square_num + 1) * 15 - 1
             level = math.ceil(percent / (100 / 9))
             for line in range(level):
                 self._draw.line((113, y_down - line, 123, y_down - line), fill=1)
