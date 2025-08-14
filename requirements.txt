@@ -1,0 +1,6 @@
+adafruit-circuitpython-ads1x15==2.4.4
+luma.oled==3.14.0
+pillow==11.3.0
+smbus2==0.5.0
+numpy==2.2.6
+Adafruit-Blinka==8.62.0
