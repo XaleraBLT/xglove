@@ -6,7 +6,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='xglove',
-    version='0.2.1.1',
+    version='0.2.1.2',
     description="Библиотека созданная для устройства XGlove",
     packages=find_packages(),
     long_description=long_description,
@@ -17,7 +17,8 @@ setup(
         'pillow==10.4.0',
         'smbus2==0.5.0',
         'numpy==1.24.4',
-        'Adafruit-Blinka==8.62.0'
+        'Adafruit-Blinka==8.62.0',
+        'RPi.GPIO==0.7.1'
     ],
     python_requires='>=3.8',
 )
