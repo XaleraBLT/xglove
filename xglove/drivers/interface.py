@@ -34,7 +34,7 @@ class Interface(object):
                     angles: Union[Tuple[float | int, ...], List[float | int]],
                     fingers: Union[Tuple[float | int, ...], List[float | int]],
                     text_attributes: Optional[Tuple[str, ImageFont]] = None,
-                    image: Optional[Image.Image] = None):
+                    image: Optional[Image.Image] = None) -> Image:
         """
             Отрисовывает текущий кадр на OLED-дисплее на основе переданных данных
             о положении и состоянии сенсоров.
@@ -63,6 +63,8 @@ class Interface(object):
                 image (PIL.Image.Image, optional):
                     Необязательный монохромный рисунок для отображения на экране.
                     Размер должен соответствовать разрешению выведенному окну дисплея (108x44)
+            Возвращает:
+                Полученное изображение, которое было выведено на экран
         """
 
         self._img = Image.new("1", (128, 64), 0)
@@ -78,6 +80,8 @@ class Interface(object):
             self.__draw_image(image)
 
         self._device.display(self._img)
+
+        return self._img
 
     def __draw_background(self):
         self._draw.line((0, 10, 108, 10), fill=1)

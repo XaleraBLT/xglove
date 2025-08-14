@@ -39,16 +39,16 @@ pitch, roll, yaw = glove.get_angle("pitch", "roll", "yaw")
 font = ImageFont.truetype("font.ttf", size=10)
 text = "Hello World!"
 
-glove.render_data(angles=(pitch, roll, yaw), 
+frame = glove.render_data(angles=(pitch, roll, yaw), 
                   fingers=[glove.get_finger_percent(p) for p in range(4)],
                   text_attributes=(text, font)) # Вывод данных + текста (необязательно)
+# Возвращает кадр
 
 img = Image.new("1", (104, 44))
 pixels = img.load()
 for x in range(104):
     for y in range(44):
         pixels[x, y] = random.randint(0, 1) # генерация случайного изображения 104x44
-
 
 glove.render_data(angles=(pitch, roll, yaw), 
                   fingers=[glove.get_finger_percent(p) for p in range(4)],
