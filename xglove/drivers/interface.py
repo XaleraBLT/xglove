@@ -34,7 +34,7 @@ class Interface(object):
                     angles: Union[Tuple[float | int, ...], List[float | int]],
                     fingers: Union[Tuple[float | int, ...], List[float | int]],
                     text_attributes: Optional[Tuple[str, ImageFont]] = None,
-                    image: Optional[Image.Image] = None) -> Image:
+                    image: Optional[Image.Image] = None) -> Image.Image:
         """
             Отрисовывает текущий кадр на OLED-дисплее на основе переданных данных
             о положении и состоянии сенсоров.
