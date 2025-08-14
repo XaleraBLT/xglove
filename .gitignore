@@ -12,3 +12,4 @@ dist/
 tests/
 
 pyptoject.toml
+MANIFEST.in
