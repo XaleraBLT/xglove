@@ -6,7 +6,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='xglove',
-    version='0.2.1.4',
+    version='0.2.1.5',
     description="Библиотека созданная для устройства XGlove",
     packages=find_packages(),
     long_description=long_description,
