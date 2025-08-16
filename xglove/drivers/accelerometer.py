@@ -64,8 +64,8 @@ class Accelerometer(object):
         """
 
         angles_map = {
-            "pitch": self._pitch, "x": self._pitch,
-            "roll": self._roll, "y": self._roll,
+            "pitch": self._pitch, "x": self._roll,
+            "roll": self._roll, "y": self._pitch,
             "yaw": self._yaw, "z": self._yaw
         }
 

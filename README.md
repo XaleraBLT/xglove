@@ -5,7 +5,7 @@ XGlove — Python-библиотека для работы с перчаткой
 
 ## Возможности
 
-- Считывание углов наклона (pitch, roll, yaw) с акселерометра.
+- Считывание углов наклона (roll, pitch, yaw) с акселерометра.
 - Получение процентов сгиба каждого пальца.
 - Получение выходного напряжения с датчика каждого пальца
 - Отображение данных на монохромном OLED-дисплее 128x64 через `luma.oled`. 
@@ -33,13 +33,13 @@ glove = xglove.Glove() # инициализация объекта перчат�
 finger_percent = glove.get_finger_percent(0) # Получение процента сгиба пальца 0
 finger_voltage = glove.get_finger_voltage(3) # Получение выходного напряжения из пальца 3
 
-pitch, roll, yaw = glove.get_angle("pitch", "roll", "yaw") 
-# Получение углов: pitch <--> x; roll <--> y; yaw <--> z
+roll, pitch, yaw = glove.get_angle("roll", "pitch", "yaw") 
+# Получение углов: roll <--> x; pitch <--> y; yaw <--> z
 
-font = ImageFont.truetype("font.ttf", size=10)
+font = ImageFont.load_default_imagefont()
 text = "Hello World!"
 
-frame = glove.render_data(angles=(pitch, roll, yaw), 
+frame = glove.render_data(angles=(roll, pitch, yaw), 
                   fingers=[glove.get_finger_percent(p) for p in range(4)],
                   text_attributes=(text, font)) # Вывод данных + текста (необязательно)
 # Возвращает кадр
