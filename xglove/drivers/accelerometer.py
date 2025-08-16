@@ -43,6 +43,7 @@ class Accelerometer(object):
 
         self._pitch = 0
         self._roll = 0
+        self._yaw_threshold = 0.7
         self._yaw = 0
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
@@ -96,7 +97,9 @@ class Accelerometer(object):
         self._pitch = self.__complementary_filter(accel_pitch, gx, dt)
         self._roll = self.__complementary_filter(accel_roll, gy, dt)
 
-        self._yaw = (self._yaw + gz * dt) % 360
+        yaw = (self._yaw + gz * dt) % 360
+
+        self._yaw = yaw if abs(yaw - self._yaw) > self._yaw_threshold else self._yaw
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
