@@ -15,6 +15,8 @@ import busio
 import json
 import time
 
+__all__ = ["Glove"]
+
 
 class Glove(Fingers, Accelerometer, Interface):
     """
