@@ -2,20 +2,29 @@ import threading
 from typing import Tuple, Dict
 from pathlib import Path
 
-from .drivers.accelerometer import Accelerometer
-from .drivers.interface import Interface
-from .drivers.fingers import Fingers
-from adafruit_ads1x15 import ads1115
-from luma.core.interface.serial import i2c
-from luma.oled.device import ssd1306
-from PIL import ImageFont
-import smbus2
-import board
-import busio
-import json
-import time
-
 __all__ = ["Glove"]
+
+try:
+    from .drivers.accelerometer import Accelerometer
+    from .drivers.interface import Interface
+    from .drivers.fingers import Fingers
+    from adafruit_ads1x15 import ads1115
+    from luma.core.interface.serial import i2c
+    from luma.oled.device import ssd1306
+    from PIL import ImageFont
+    import smbus2
+    import board
+    import busio
+    import json
+    import time
+except ImportError:
+    class Glove(object):
+        def __init__(self, *args, **kwargs):
+            raise AttributeError("Аппаратная часть XGlove не поддерживается на данном устройстве. Используется "
+                                 "заглушка.")
+
+        def __str__(self):
+            return "Аппаратная часть XGlove не поддерживается на данном устройстве. Используется заглушка."
 
 
 class Glove(Fingers, Accelerometer, Interface):
