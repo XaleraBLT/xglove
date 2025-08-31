@@ -12,7 +12,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[
-        'paramiko==4.0.0',
+        'paramiko==3.5.1',
         'numpy==1.24.4',
         'pillow==10.4.0',
         'pyserial==3.5',
