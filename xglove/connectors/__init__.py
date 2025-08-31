@@ -1,2 +1,2 @@
-import host
-import client
+from . import host
+from . import client

@@ -1,1 +1,1 @@
-from code_updating import *
+from .code_updating import *

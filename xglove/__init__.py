@@ -1,3 +1,3 @@
-import connectors
-import utils
+from . import connectors
+from . import utils
 from .glove import *
