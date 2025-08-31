@@ -3,6 +3,7 @@ import os
 
 __all__ = ["update_code"]
 
+
 def update_code(code_path: str):
     remote_path = "/home/xglove/main-script/main.py"
     remote_host = "192.168.4.1"
