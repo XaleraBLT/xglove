@@ -107,7 +107,7 @@ class Interface(object):
         x_str = f"{round(angles[0]):<3}"
         y_str = f"{round(angles[1]):<3}"
         z_str = f"{round(angles[2]):<3}"
-        final_string = f"X:{x_str} Y:{y_str} Z:{z_str}"
+        final_string = f"X: {x_str} Y: {y_str} Z: {z_str}"
 
         self._draw.text((3, -2), final_string, fill=1, font=self._font)
 
