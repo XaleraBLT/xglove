@@ -121,10 +121,6 @@ class Accelerometer(object):
         pitch = math.degrees(math.atan2(ax, math.sqrt(ay ** 2 + az ** 2)))
         roll = math.degrees(math.atan2(ay, math.sqrt(ax ** 2 + az ** 2)))
 
-        pitch = max(min(pitch, 90), -90)
-        pitch = pitch + 90
-        roll = (roll + 360) % 360
-
         return pitch, roll
 
     def __get_gyro_rates(self):
