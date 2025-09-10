@@ -60,8 +60,7 @@ try:
 
             serial_interface = i2c(port=2, address=0x3C)
             device_interface = ssd1306(serial_interface, width=128, height=64)
-            font_path = Path(__file__).parent / "fonts" / "font.ttf"
-            font = ImageFont.truetype(font_path, 10)
+            font = ImageFont.load_default(10)
             Interface.__init__(self, device=device_interface, font=font)
 
             thread = threading.Thread(target=self.__load_accelerometer, daemon=True)

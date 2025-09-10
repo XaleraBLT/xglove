@@ -1,4 +1,3 @@
 exclude .gitignore
 
 recursive-include xglove/data *
-recursive-include xglove/fonts *
