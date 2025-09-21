@@ -33,6 +33,7 @@ class Glove_data(object):
                                             [self._glove.get_finger_voltage(finger_num) for finger_num in range(4)]))
             self._glove.render_data(angles=(self.x, self.y, self.z), fingers=list(self.fingers_percent.values()),
                                     text_attributes=(self.text, self._font))
+            time.sleep(0.02)
 
     def _pack_data(self) -> bytes:
         data_dict = {

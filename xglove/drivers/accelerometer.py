@@ -99,7 +99,7 @@ class Accelerometer(object):
 
         yaw = (self._yaw + gz * dt) % 360
 
-        self._yaw = yaw if abs(yaw - self._yaw) > self._yaw_threshold else self._yaw
+        self._yaw = yaw
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
