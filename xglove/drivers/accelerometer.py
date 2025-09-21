@@ -121,7 +121,7 @@ class Accelerometer(object):
         ay = self.__read_word(reg + 2) / 16384.0
         az = self.__read_word(reg + 4) / 16384.0
 
-        pitch = math.degrees(math.atan2(ax, math.sqrt(ay ** 2 + az ** 2)))
+        pitch = math.degrees(math.atan2(-ax, math.sqrt(ay ** 2 + az ** 2)))
 
         roll = math.degrees(math.atan2(ay, az))
         if az < 0:
