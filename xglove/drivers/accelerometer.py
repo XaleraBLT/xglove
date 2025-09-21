@@ -64,9 +64,9 @@ class Accelerometer(object):
         """
 
         angles_map = {
-            "pitch": self._pitch, "x": self._roll,
-            "roll": self._roll, "y": self._pitch,
-            "yaw": self._yaw, "z": self._yaw
+            "pitch": self._pitch % 360, "x": self._roll % 360,
+            "roll": self._roll % 360, "y": self._pitch % 360,
+            "yaw": self._yaw % 360, "z": self._yaw % 360
         }
 
         results = []
@@ -97,7 +97,7 @@ class Accelerometer(object):
         self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gx, dt)
         self._roll = self.__complementary_filter(self._roll, accel_roll, gy, dt)
 
-        self._yaw = (self._yaw + gz * dt) % 360
+        self._yaw = (self._yaw + gz * dt)
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
@@ -130,7 +130,7 @@ class Accelerometer(object):
         return gx, gy, gz
 
     @staticmethod
-    def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.98):
+    def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.9):
         angle = prev_angle + gyro_rate * dt
         diff = (accel_angle - angle + 180) % 360 - 180
         return angle + (1 - alpha) * diff
