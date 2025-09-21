@@ -128,7 +128,7 @@ class Accelerometer(object):
         gy = self.__read_word(reg + 2) / 131.0
         gz = self.__read_word(reg + 4) / 131.0
 
-        threshold = 0.4
+        threshold = 0.6
         if abs(gz) < threshold: gz = 0
 
         return gx, gy, gz
