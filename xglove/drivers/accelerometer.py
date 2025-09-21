@@ -131,4 +131,6 @@ class Accelerometer(object):
 
     @staticmethod
     def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.98):
-        return alpha * (prev_angle + gyro_rate * dt) + (1 - alpha) * accel_angle
+        angle = prev_angle + gyro_rate * dt
+        diff = (accel_angle - angle + 180) % 360 - 180
+        return angle + (1 - alpha) * diff
