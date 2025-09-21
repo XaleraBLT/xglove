@@ -94,9 +94,10 @@ class Accelerometer(object):
         dt = current_time - self._last_time
         self._last_time = current_time
 
-        alpha = 0.02
-        self._pitch = (1 - alpha) * self._pitch + alpha * accel_pitch
-        self._roll = (1 - alpha) * self._roll + alpha * accel_roll
+        alpha = 0.98
+
+        self._pitch = alpha * (self._pitch + gx * dt) + (1 - alpha) * accel_pitch
+        self._roll = alpha * (self._roll + gy * dt) + (1 - alpha) * accel_roll
 
         self._pitch = (self._pitch + 180) % 360 - 180
         self._roll = (self._roll + 180) % 360 - 180
