@@ -94,13 +94,8 @@ class Accelerometer(object):
         dt = current_time - self._last_time
         self._last_time = current_time
 
-        alpha = 0.98
-
-        self._pitch = alpha * (self._pitch + gy * dt) + (1 - alpha) * accel_pitch
-        self._roll = alpha * (self._roll + gx * dt) + (1 - alpha) * accel_roll
-
-        self._pitch = (self._pitch + 180) % 360 - 180
-        self._roll = (self._roll + 180) % 360 - 180
+        self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gy, dt)
+        self._roll = self.__complementary_filter(self._roll, accel_roll, gx, dt)
 
         self._yaw = (self._yaw + gz * dt) % 360
 
