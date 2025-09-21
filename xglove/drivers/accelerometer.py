@@ -97,7 +97,7 @@ class Accelerometer(object):
         self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gx, dt)
         self._roll = self.__complementary_filter(self._roll, accel_roll, gy, dt)
 
-        self._yaw = (self._yaw + gz * dt)
+        self._yaw = (self._yaw + gz * dt) % 360
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
