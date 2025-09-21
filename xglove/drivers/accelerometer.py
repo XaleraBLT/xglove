@@ -127,10 +127,14 @@ class Accelerometer(object):
         gx = self.__read_word(reg) / 131.0
         gy = self.__read_word(reg + 2) / 131.0
         gz = self.__read_word(reg + 4) / 131.0
+
+        threshold = 0.4
+        if abs(gz) < threshold: gz = 0
+
         return gx, gy, gz
 
     @staticmethod
-    def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.98):
+    def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.9):
         angle = prev_angle + gyro_rate * dt
         diff = (accel_angle - angle + 180) % 360 - 180
         return angle + (1 - alpha) * diff
