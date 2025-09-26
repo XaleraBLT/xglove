@@ -1,20 +1,17 @@
 # XGlove
 
 XGlove — Python-библиотека для работы с перчаткой-контролёром X.Glove. 
-Позволяет считывать данные с тензорезисторов и акселерометра, а также визуализировать их на OLED-дисплее.
+Позволяет считывать данные с тензорезисторов и инерциального датчика, а также визуализировать их на OLED-дисплее.
 
 ## Возможности
 
-- Считывание углов наклона (roll, pitch, yaw) с акселерометра.
-- Получение процентов сгиба каждого пальца.
-- Получение выходного напряжения с датчика каждого пальца
+- Считывание углов наклона (roll, pitch, yaw) с инерциального датчика.
+- Получение процентного соотношения сгиба пальцев.
+- Получение выходного напряжения с тензорезистора каждого пальца
 - Отображение данных на монохромном OLED-дисплее 128x64 через `luma.oled`. 
 - Простая интеграция в Python-проекты.
 
 ## Установка
-
-Через pip:
-
 ```bash
 pip install xglove
 ```
@@ -23,34 +20,43 @@ pip install git+https://github.com/XaleraBLT/xglove.git
 ```
 
 ## Функции
+
+### Физическое устройство  
+
+#### Инициализация устройства
 ```python
 import xglove
-from PIL import ImageFont, Image
-import random
-
-glove = xglove.Glove() # инициализация объекта перчатки
-
-finger_percent = glove.get_finger_percent(0) # Получение процента сгиба пальца 0
-finger_voltage = glove.get_finger_voltage(3) # Получение выходного напряжения из пальца 3
-
-roll, pitch, yaw = glove.get_angle("roll", "pitch", "yaw") 
-# Получение углов: roll <--> x; pitch <--> y; yaw <--> z
-
-font = ImageFont.load_default_imagefont()
-text = "Hello World!"
-
-frame = glove.render_data(angles=(roll, pitch, yaw), 
-                  fingers=[glove.get_finger_percent(p) for p in range(4)],
-                  text_attributes=(text, font)) # Вывод данных + текста (необязательно)
-# Возвращает кадр
-
-img = Image.new("1", (104, 44))
-pixels = img.load()
-for x in range(104):
-    for y in range(44):
-        pixels[x, y] = random.randint(0, 1) # генерация случайного изображения 104x44
-
-glove.render_data(angles=(pitch, roll, yaw), 
-                  fingers=[glove.get_finger_percent(p) for p in range(4)],
-                  image=img) # Вывод данных + изображения (необязательно)
+glove = xglove.Glove()
 ```
+#### Получение данных с тензорезисторов
+
+
+<details><summary>Индексы пальцев (finger_num):</summary>
+<li>0 - большой
+<li>1 - указательный
+<li>2 - средний
+<li>3 - безымянный
+</details>
+
+`glove.get_finger_percent(0)` - получение процентного отношения сгиба пальца
+`glove.get_finger_voltage(0)` - получение выходного напряжения с пальца
+
+#### Получение данных с инерциональных датчиков
+<details><summary>Обозначение углов (*angles):</summary>
+<li>roll или x - крен
+<li>pitch или y - тангаж
+<li>yaw или z - рыскание
+</details>
+
+`glove.get_angles("roll", "pitch", "yaw")` - получение углов поворота ладони (0-360)
+
+#### Вывод данных на дисплей:
+
+<details><summary>Описание аттрибутов:</summary>
+<li>angles = (roll, pitch, yaw) - углы поворота (0-360)
+<li>fingers = (100, 100, 100, 100) - процентное соотношение изгиба для каждого пальца (0-100)
+<li>text_attributes = (текст, шрифт) - отображение текста на дисплее (необязательно, максимальное разрешение 108x44)
+<li>image - изображение (необязательно, максимальное разрешение 108x44)
+</details>
+
+`glove.render_data(angles, fingers)` - вывод данных на дисплей
