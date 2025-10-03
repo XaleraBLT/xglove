@@ -54,7 +54,7 @@ class Serial_connector(Glove_data):
 
 
 class Socket_connector(Glove_data):
-    def __init__(self, host: str = "192.168.4.1", port: int = 80):
+    def __init__(self, host: str = "192.168.4.1", port: int = 8000):
         super().__init__()
 
         self._host = host
@@ -92,3 +92,4 @@ class Socket_connector(Glove_data):
                     self.x, self.y, self.z = tuple(data_dict["angles"].values())
                     self.fingers_percent = data_dict["fingers_percent"]
                     self.fingers_voltage = data_dict["fingers_voltage"]
+                    self.fingers_raw = data_dict["fingers_raw"]

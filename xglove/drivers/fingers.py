@@ -39,6 +39,19 @@ class Fingers(object):
         chan = AnalogIn(self._device_ads, channel)
         return chan.voltage
 
+    def get_finger_raw(self, finger_num: int) -> int:
+        """
+            Возвращает текущее значение (-32768 … +32767) с датчика, привязанного к указанному пальцу.
+            Параметр finger_num должен быть от 0 до 3 включительно.
+        """
+        if finger_num < 0 or finger_num > 3:
+            raise ValueError("Finger number must be between 0 and 3 inclusive")
+
+        channel = getattr(ads, f'P{finger_num}')
+        chan = AnalogIn(self._device_ads, channel)
+
+        return chan.value & 0xFFFF
+
     def get_finger_percent(self, finger_num: int) -> float:
         """
             Преобразует текущее напряжение в процент изгиба пальца, используя полиномиальную аппроксимацию

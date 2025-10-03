@@ -166,3 +166,10 @@ class Accelerometer(object):
         angle = prev_angle + gyro_rate * dt
         diff = (accel_angle - angle + 180) % 360 - 180
         return angle + (1 - alpha) * diff
+
+    @staticmethod
+    def __complementary_filter_yaw(prev_angle, mag_angle, gyro_rate, dt, alpha=0.9):
+        angle = prev_angle + gyro_rate * dt
+        diff = (mag_angle - angle + 180) % 360 - 180
+        angle = angle + (1 - alpha) * diff
+        return (angle + 360) % 360

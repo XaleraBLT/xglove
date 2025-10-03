@@ -31,6 +31,9 @@ class Glove_data(object):
                                             [self._glove.get_finger_percent(finger_num) for finger_num in range(4)]))
             self.fingers_voltage = dict(zip(range(4),
                                             [self._glove.get_finger_voltage(finger_num) for finger_num in range(4)]))
+            self.fingers_raw = dict(zip(range(4),
+                                            [self._glove.get_finger_raw(finger_num) for finger_num in range(4)]))
+
             self._glove.render_data(angles=(self.x, self.y, self.z), fingers=list(self.fingers_percent.values()),
                                     text_attributes=(self.text, self._font))
             time.sleep(0.02)
@@ -39,7 +42,8 @@ class Glove_data(object):
         data_dict = {
             "angles": {"roll": self.x, "pitch": self.y, "yaw": self.z},
             "fingers_percent": self.fingers_percent,
-            "fingers_voltage": self.fingers_voltage
+            "fingers_voltage": self.fingers_voltage,
+            "fingers_raw": self.fingers_raw
         }
 
         data_bytes = json.dumps(data_dict).encode()
@@ -71,7 +75,7 @@ class Serial_connector(Glove_data):
 
 
 class Socket_connector(Glove_data):
-    def __init__(self, glove: Glove, host: str = "192.168.4.1", port: int = 80):
+    def __init__(self, glove: Glove, host: str = "192.168.4.1", port: int = 8000):
         super().__init__(glove)
 
         self._host = host
