@@ -114,9 +114,8 @@ class Accelerometer(object):
         my_comp = mx * math.sin(roll_rad) * math.sin(pitch_rad) + my * math.cos(roll_rad) - mz * math.sin(
             roll_rad) * math.cos(pitch_rad)
         yaw_mag = math.degrees(math.atan2(-my_comp, mx_comp))
-        if yaw_mag < 0: yaw_mag += 360
-
         self._yaw = self.__complementary_filter(self._yaw, yaw_mag, gz, dt, alpha=0.9)
+        self._yaw = (self._yaw + 360) % 360
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
@@ -154,9 +153,12 @@ class Accelerometer(object):
         x = (data[1] << 8) | data[0]
         y = (data[3] << 8) | data[2]
         z = (data[5] << 8) | data[4]
-        if x >= 32768: x -= 65536
-        if y >= 32768: y -= 65536
-        if z >= 32768: z -= 65536
+        if x >= 32768:
+            x -= 65536
+        if y >= 32768:
+            y -= 65536
+        if z >= 32768:
+            z -= 65536
         return x, y, z
 
     @staticmethod
