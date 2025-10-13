@@ -110,12 +110,12 @@ class Accelerometer(object):
 
         pitch_rad = math.radians(self._pitch)
         roll_rad = math.radians(self._roll)
-        mx_comp = mx * math.cos(pitch_rad) + mz * math.sin(pitch_rad)
-        my_comp = mx * math.sin(roll_rad) * math.sin(pitch_rad) + my * math.cos(roll_rad) - mz * math.sin(
+
+        xh = mx * math.cos(pitch_rad) + mz * math.sin(pitch_rad)
+        yh = mx * math.sin(roll_rad) * math.sin(pitch_rad) + my * math.cos(roll_rad) - mz * math.sin(
             roll_rad) * math.cos(pitch_rad)
-        yaw_mag = math.degrees(math.atan2(-my_comp, mx_comp))
+        yaw_mag = math.degrees(math.atan2(yh, xh))
         self._yaw = self.__complementary_filter(self._yaw, yaw_mag, gz, dt, alpha=0.9)
-        self._yaw = (self._yaw + 360) % 360
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
