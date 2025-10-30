@@ -98,24 +98,26 @@ class Accelerometer(object):
 
         accel_pitch, accel_roll = self.__get_accel_angles()
         gx, gy, gz = self.__get_gyro_rates()
-
-        mx, my, mz = self.__read_mag()
+        mx, my, mz = self.__read_mag()  # для QMC5883L
 
         current_time = time.time()
         dt = current_time - self._last_time
         self._last_time = current_time
 
-        self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gx, dt)
-        self._roll = self.__complementary_filter(self._roll, accel_roll, gy, dt)
+        self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gx, dt, alpha=0.98)
+        self._roll = self.__complementary_filter(self._roll, accel_roll, gy, dt, alpha=0.98)
 
         pitch_rad = math.radians(self._pitch)
         roll_rad = math.radians(self._roll)
+        Xh = mx * math.cos(pitch_rad) + mz * math.sin(pitch_rad)
+        Yh = (mx * math.sin(roll_rad) * math.sin(pitch_rad)
+              + my * math.cos(roll_rad)
+              - mz * math.sin(roll_rad) * math.cos(pitch_rad))
+        yaw_mag = math.degrees(math.atan2(Yh, Xh))
+        if yaw_mag < 0:
+            yaw_mag += 360
 
-        xh = mx * math.cos(pitch_rad) + mz * math.sin(pitch_rad)
-        yh = mx * math.sin(roll_rad) * math.sin(pitch_rad) + my * math.cos(roll_rad) - mz * math.sin(
-            roll_rad) * math.cos(pitch_rad)
-        yaw_mag = math.degrees(math.atan2(yh, xh))
-        self._yaw = self.__complementary_filter(self._yaw, yaw_mag, gz, dt, alpha=0.8)
+        self._yaw = self.__complementary_filter_yaw(self._yaw, yaw_mag, gz, dt, alpha=0.85)
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
