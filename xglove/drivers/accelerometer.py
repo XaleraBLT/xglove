@@ -151,16 +151,25 @@ class Accelerometer(object):
         return gx, gy, gz
 
     def __read_mag(self):
+        status = self._mag_bus.read_byte_data(self._mag_address, 0x06)
+        if not (status & 0x01):
+            return 0, 0, 0
+
         data = self._mag_bus.read_i2c_block_data(self._mag_address, 0x00, 6)
+
         x = (data[1] << 8) | data[0]
         y = (data[3] << 8) | data[2]
         z = (data[5] << 8) | data[4]
+
         if x >= 32768:
             x -= 65536
         if y >= 32768:
             y -= 65536
         if z >= 32768:
             z -= 65536
+
+        self._mag_bus.write_byte_data(self._mag_address, 0x09, 0x1D)
+
         return x, y, z
 
     @staticmethod
