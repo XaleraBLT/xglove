@@ -103,3 +103,6 @@ import xglove
 xglove.utils.update_code("путь_к_коду.py")
 ```
 
+## Чертёж устройства
+
+<img alt="Чертёж устройства" src="docs/xglove_v0.3.png" width="800"/>
