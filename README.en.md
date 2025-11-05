@@ -103,6 +103,22 @@ import xglove
 xglove.utils.update_code("/path/to/your/code.py")
 ```
 
+#### XGlove calibrating (only via hotspot)
+<details><summary><h5>File formatting rules</h5></summary>
+<li>Key - finger number (from 0 to 3).
+<li>Value - list of 5 elements separated with commas: raw sensor data from when finger is bent on 0-25-50-75-100% bend ratio.
+<li>JSON file formatting rules
+</details>
+
+```json
+{
+  "0": [2869, 2826, 2346, 2177, 2121],
+  "1": [3941, 2237, 2413, 1698, 1483],
+  "2": [5607, 2898, 2517, 2200, 1797],
+  "3": [6596, 3123, 3039, 2275, 2048]
+}
+```
+
 ## Device scheme
 
 <img alt="X.Glove device scheme" src="docs/xglove_v0.3.png" width="800"/>
