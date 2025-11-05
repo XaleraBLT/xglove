@@ -29,7 +29,7 @@ class Fingers(object):
         for finger_num, values in self._calib_raw.items():
             sorted_pairs = sorted(zip(values, percentages), reverse=True)
             x_sorted, y_sorted = zip(*sorted_pairs)
-            self._polynomials[finger_num] = np.poly1d(np.polyfit(x_sorted, y_sorted, 2))
+            self._polynomials[str(finger_num)] = np.poly1d(np.polyfit(x_sorted, y_sorted, 2))
 
     def get_finger_voltage(self, finger_num: int) -> float:
         """
@@ -75,6 +75,6 @@ class Fingers(object):
             return 0.0
         if raw_value <= min(x_vals):
             return 100.0
-        return max(0.0, min(100.0, self._polynomials[finger_num](raw_value)))
+        return max(0.0, min(100.0, self._polynomials[key](raw_value)))
 
         return percent
