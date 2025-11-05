@@ -8,10 +8,10 @@ It allows to read data from strain gauge and inertial sensor and also display it
 ## Features
 
 - Read roll, pitch and yaw from inertial sensor.
-- Get finger bend ratio in percentage.
-- Get output resistance from strain gauge on every finger.
-- Display data on monochrome 128x64 OLED-display via `luma.oled`.
-- Easy integration in Python projects.
+  - Get finger bend ratio in percentage.
+  - Get output resistance from strain gauge on every finger.
+  - Display data on monochrome 128x64 OLED-display via `luma.oled`.
+  - Easy integration in Python projects.
 
 ## Installation
 ```shell
