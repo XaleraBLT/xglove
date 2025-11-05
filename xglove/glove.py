@@ -27,13 +27,10 @@ try:
 
             Наследует:
                 Fingers — обработка данных с тензорезисторов (измерение сгиба пальцев).
-                Accelerometer — получение углов наклона (pitch, roll, yaw) с датчика GY-86/MPU.
+                Accelerometer — получение углов наклона (pitch, roll, yaw) с датчика GY-87 и GY-273.
                 Interface — отображение данных на OLED-дисплее.
 
-            Параметры: calib_voltages (Dict, optional) — словарь с калибровочными напряжениями для каждого пальца.
-            poly_voltages (Dict, optional) — словарь с полиномиальными коэффициентами для пересчёта напряжений в
-            проценты.
-
+            Параметры: calib_voltages (Dict, optional) — словарь с калибровочными значениями для каждого пальца.
             Потоки:
                 При инициализации создаётся фоновый поток для постоянного обновления данных акселерометра.
 
@@ -44,16 +41,13 @@ try:
                 glove.render_data(angles, fingers, text_attributes=("Hello world!", font))
             """
 
-        def __init__(self, calib_voltages: Dict = None, poly_voltages: Dict = None):
+        def __init__(self, calib_raw: Dict = None):
             i2c_adc = busio.I2C(board.SCL, board.SDA)
             ads_device = ads1115.ADS1115(i2c_adc)
-            if calib_voltages is None:
-                calib_voltages_path = Path(__file__).parent / "data" / "calib_voltages.json"
-                calib_voltages = json.loads(open(calib_voltages_path, "r").read())
-            if poly_voltages is None:
-                poly_voltages_path = Path(__file__).parent / "data" / "poly_voltages.json"
-                poly_voltages = json.loads(open(poly_voltages_path, "r").read())
-            Fingers.__init__(self, device=ads_device, poly_voltages=poly_voltages, calib_voltages=calib_voltages)
+            if calib_raw is None:
+                calib_raw_path = Path(__file__).parent / "data" / "calib_raw.json"
+                calib_raw = json.loads(open(calib_raw_path, "r").read())
+            Fingers.__init__(self, device=ads_device, calib_raw=calib_raw)
 
             bus_accelerometer = smbus2.SMBus(3)
             bus_magnitometer = smbus2.SMBus(4)
