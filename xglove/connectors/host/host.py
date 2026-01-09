@@ -19,6 +19,7 @@ class Glove_data(object):
         self.z = None
         self.fingers_percent = None
         self.fingers_voltage = None
+        self.fingers_raw = None
         self.text = ""
 
         thread = threading.Thread(target=self.__main_loop, daemon=True)
