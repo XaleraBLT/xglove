@@ -47,7 +47,6 @@ class Accelerometer(object):
         self._yaw = 0
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
-        self._gz_bias = 0.0
 
     def get_angle(self, *angles) -> List[float]:
 
@@ -98,10 +97,9 @@ class Accelerometer(object):
         self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gy, dt, alpha=0.98)
         self._roll = self.__complementary_filter(self._roll, accel_roll, gx, dt, alpha=0.98)
 
-        gz -= self._gz_bias
-        if abs(gz) > 0.5:
+        if abs(gz) > 1.5:
             self._yaw += gz * dt
-        self._yaw = (self._yaw + 180) % 360 - 180
+            self._yaw = (self._yaw + 180) % 360 - 180
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
