@@ -100,7 +100,7 @@ class Accelerometer(object):
 
         gz -= self._gz_bias
         delta_yaw = gz * dt
-        if abs(delta_yaw) < 0.25:
+        if abs(delta_yaw) > 0.33:
             self._yaw += gz * dt
         self._yaw = (self._yaw + 180) % 360 - 180
 
