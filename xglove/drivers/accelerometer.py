@@ -25,9 +25,7 @@ class Accelerometer(object):
 
     def __init__(self,
                  bus: smbus2.SMBus,
-                 mag_bus: smbus2.SMBus,
                  mpu_address: int = None,
-                 mag_address: int = 0x0D,
                  accel_xout_high_reg: int = None,
                  gyro_xout_high_reg: int = None,
                  power_mgmt_1_reg: int = None):
@@ -35,14 +33,12 @@ class Accelerometer(object):
         self._mpu_address = mpu_address if mpu_address is not None else 0x68
         self._accel_xout_high_reg = accel_xout_high_reg if accel_xout_high_reg is not None else 0x3B
         self._gyro_xout_high_reg = gyro_xout_high_reg if gyro_xout_high_reg is not None else 0x43
-        self._mag_address = mag_address if mpu_address is not None else 0x0D
         self._power_mgmt_1_reg = power_mgmt_1_reg if power_mgmt_1_reg is not None else 0x6B
 
         for name, val in (("mpu_address", self._mpu_address),
                           ("accel_xout_high_reg", self._accel_xout_high_reg),
                           ("gyro_xout_high_reg", self._gyro_xout_high_reg),
-                          ("power_mgmt_1_reg", self._power_mgmt_1_reg),
-                          ("mag_address", self._mag_address)):
+                          ("power_mgmt_1_reg", self._power_mgmt_1_reg)):
             if not (0x00 <= val <= 0xFF):
                 raise ValueError(f"{name} must be a byte value between 0x00 and 0xFF, got {val}")
 
@@ -51,11 +47,6 @@ class Accelerometer(object):
         self._yaw = 0
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
-
-        self._mag_bus = mag_bus
-        self._mag_address = mag_address
-        self._mag_bus.write_byte_data(self._mag_address, 0x0B, 0x01)
-        self._mag_bus.write_byte_data(self._mag_address, 0x09, 0x1D)
 
     def get_angle(self, *angles) -> List[float]:
 
@@ -98,26 +89,16 @@ class Accelerometer(object):
 
         accel_pitch, accel_roll = self.__get_accel_angles()
         gx, gy, gz = self.__get_gyro_rates()
-        mx, my, mz = self.__read_mag()  # для QMC5883L
 
         current_time = time.time()
         dt = current_time - self._last_time
         self._last_time = current_time
 
-        self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gx, dt, alpha=0.98)
-        self._roll = self.__complementary_filter(self._roll, accel_roll, gy, dt, alpha=0.98)
+        self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gy, dt, alpha=0.98)
+        self._roll = self.__complementary_filter(self._roll, accel_roll, gx, dt, alpha=0.98)
 
-        pitch_rad = math.radians(self._pitch)
-        roll_rad = math.radians(self._roll)
-        Xh = mx * math.cos(pitch_rad) + mz * math.sin(pitch_rad)
-        Yh = mx * math.sin(roll_rad) * math.sin(pitch_rad) + my * math.cos(roll_rad) - mz * math.sin(
-            roll_rad) * math.cos(pitch_rad)
-
-        yaw_mag = math.degrees(math.atan2(Yh, Xh))
-        if yaw_mag < 0:
-            yaw_mag += 360
-
-        self._yaw = self.__complementary_filter_yaw(self._yaw, yaw_mag, gz, dt, alpha=0.95)
+        self._yaw += gz * dt
+        self._yaw = (self._yaw + 180) % 360 - 180
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
@@ -150,35 +131,8 @@ class Accelerometer(object):
 
         return gx, gy, gz
 
-    def __read_mag(self):
-        status = self._mag_bus.read_byte_data(self._mag_address, 0x06)
-        if not (status & 0x01):
-            return 0, 0, 0
-
-        data = self._mag_bus.read_i2c_block_data(self._mag_address, 0x00, 6)
-
-        x = (data[1] << 8) | data[0]
-        y = (data[3] << 8) | data[2]
-        z = (data[5] << 8) | data[4]
-
-        if x >= 32768:
-            x -= 65536
-        if y >= 32768:
-            y -= 65536
-        if z >= 32768:
-            z -= 65536
-
-        return x, y, z
-
     @staticmethod
     def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.9):
         angle = prev_angle + gyro_rate * dt
         diff = (accel_angle - angle + 180) % 360 - 180
         return angle + (1 - alpha) * diff
-
-    @staticmethod
-    def __complementary_filter_yaw(prev_angle, mag_angle, gyro_rate, dt, alpha=0.9):
-        angle = prev_angle + gyro_rate * dt
-        diff = (mag_angle - angle + 180) % 360 - 180
-        angle = angle + (1 - alpha) * diff
-        return (angle + 360) % 360
