@@ -47,7 +47,7 @@ class Accelerometer(object):
         self._yaw = 0
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
-        self.__alibrate_gyro_z()
+        self.__calibrate_gyro_z()
         self._gz_bias = 0.0
 
     def get_angle(self, *angles) -> List[float]:
