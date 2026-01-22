@@ -50,8 +50,7 @@ try:
             Fingers.__init__(self, device=ads_device, calib_raw=calib_raw)
 
             bus_accelerometer = smbus2.SMBus(3)
-            bus_magnitometer = smbus2.SMBus(4)
-            Accelerometer.__init__(self, bus=bus_accelerometer, mag_bus=bus_magnitometer)
+            Accelerometer.__init__(self, bus=bus_accelerometer)
 
             serial_interface = i2c(port=2, address=0x3C)
             device_interface = ssd1306(serial_interface, width=128, height=64)
