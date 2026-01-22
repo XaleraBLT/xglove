@@ -97,7 +97,7 @@ class Accelerometer(object):
         self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gy, dt, alpha=0.98)
         self._roll = self.__complementary_filter(self._roll, accel_roll, gx, dt, alpha=0.98)
 
-        if abs(gz) > 1.5:
+        if abs(gz) > 3:
             self._yaw += gz * dt
             self._yaw = (self._yaw + 180) % 360 - 180
 
