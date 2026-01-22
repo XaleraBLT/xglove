@@ -47,7 +47,6 @@ class Accelerometer(object):
         self._yaw = 0
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
-        self.__calibrate_gyro_z()
         self._gz_bias = 0.0
 
     def get_angle(self, *angles) -> List[float]:
@@ -100,7 +99,9 @@ class Accelerometer(object):
         self._roll = self.__complementary_filter(self._roll, accel_roll, gx, dt, alpha=0.98)
 
         gz -= self._gz_bias
-        self._yaw += gz * dt
+        delta_yaw = gz * dt
+        if abs(delta_yaw) < 0.25:
+            self._yaw += gz * dt
         self._yaw = (self._yaw + 180) % 360 - 180
 
     def __read_word(self, reg):
@@ -133,14 +134,6 @@ class Accelerometer(object):
         gz = self.__read_word(reg + 4) / 131.0
 
         return gx, gy, gz
-
-    def __calibrate_gyro_z(self, samples=500):
-        s = 0
-        for _ in range(samples):
-            _, _, gz = self.__get_gyro_rates()
-            s += gz
-            time.sleep(0.002)
-        self._gz_bias = s / samples
 
     @staticmethod
     def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.9):
