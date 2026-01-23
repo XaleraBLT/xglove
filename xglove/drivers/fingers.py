@@ -50,9 +50,12 @@ class Fingers(object):
             raise ValueError("Finger number must be between 0 and 3 inclusive")
 
         channel = getattr(ads, f'P{finger_num}')
-        chan = AnalogIn(self._device_ads, channel)
 
-        return chan.value & 0xFFFF
+        try:
+            chan = AnalogIn(self._device_ads, channel)
+            return chan.value & 0xFFFF
+        except OSError:
+            return -32768
 
     def get_finger_percent(self, finger_num: int) -> float:
         """
@@ -73,5 +76,3 @@ class Fingers(object):
         if raw_value <= min(x_vals):
             return 100.0
         return max(0.0, min(100.0, self._polynomials[key](raw_value)))
-
-        return percent
