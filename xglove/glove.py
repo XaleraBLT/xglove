@@ -5,7 +5,7 @@ from pathlib import Path
 __all__ = ["Glove"]
 
 try:
-    from .drivers.accelerometer import Accelerometer
+    from .drivers.IMU import IMU
     from .drivers.interface import Interface
     from .drivers.fingers import Fingers
     from adafruit_ads1x15 import ads1115
@@ -19,7 +19,7 @@ try:
     import time
 
 
-    class Glove(Fingers, Accelerometer, Interface):
+    class Glove(Fingers, IMU, Interface):
         """
             Класс Glove объединяет функционал работы с тензорезисторами, акселерометром и OLED-дисплеем
             в едином устройстве — перчатке-контроллере. Предназначен для считывания данных о жестах, углах
@@ -27,7 +27,7 @@ try:
 
             Наследует:
                 Fingers — обработка данных с тензорезисторов (измерение сгиба пальцев).
-                Accelerometer — получение углов наклона (pitch, roll, yaw) с датчика GY-87 и GY-273.
+                IMU — получение углов наклона (pitch, roll, yaw) с датчика GY-87.
                 Interface — отображение данных на OLED-дисплее.
 
             Параметры: calib_voltages (Dict, optional) — словарь с калибровочными значениями для каждого пальца.
@@ -49,21 +49,20 @@ try:
                 calib_raw = json.loads(open(calib_raw_path, "r").read())
             Fingers.__init__(self, device=ads_device, calib_raw=calib_raw)
 
-            bus_accelerometer = smbus2.SMBus(3)
-            Accelerometer.__init__(self, bus=bus_accelerometer)
+            bus_IMU = smbus2.SMBus(3)
+            IMU.__init__(self, bus=bus_IMU)
 
             serial_interface = i2c(port=2, address=0x3C)
             device_interface = ssd1306(serial_interface, width=128, height=64)
             font = ImageFont.load_default(10)
             Interface.__init__(self, device=device_interface, font=font)
 
-            thread = threading.Thread(target=self.__load_accelerometer, daemon=True)
+            thread = threading.Thread(target=self.__load_IMU, daemon=True)
             thread.start()
 
-        def __load_accelerometer(self):
+        def __load_IMU(self):
             while True:
-                self._get_angles()
-                time.sleep(0.01)
+                self._update_data()
 
 except ImportError:
     class Glove(object):

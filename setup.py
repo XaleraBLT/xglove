@@ -6,7 +6,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='xglove',
-    version='0.4.0-b2',
+    version='0.4.0b3',
     description="Библиотека созданная для устройства XGlove",
     packages=find_packages(),
     long_description=long_description,
@@ -16,6 +16,7 @@ setup(
         'numpy==1.24.4',
         'pillow==10.4.0',
         'pyserial==3.5',
+        'git+https://github.com/adafruit/Adafruit_Python_BMP.git; platform_machine=="armv7l" or platform_machine=="aarch64"',
         'adafruit-circuitpython-ads1x15==2.4.4; platform_machine=="armv7l" or platform_machine=="aarch64"',
         'luma.oled==3.14.0; platform_machine=="armv7l" or platform_machine=="aarch64"',
         'smbus2==0.5.0; platform_machine=="armv7l" or platform_machine=="aarch64"',

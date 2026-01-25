@@ -1,14 +1,15 @@
 from __future__ import annotations
 from typing import List
+import Adafruit_BMP.BMP085 as BMP085
 
 import time
 import smbus2
 import math
 
 
-class Accelerometer(object):
+class IMU(object):
     """
-    Класс для работы с акселерометром и гироскопом через I2C (smbus2).
+    Класс для работы с акселерометром, гироскопом и барометром через I2C (smbus2).
 
     __init__(bus, mpu_address=None, accel_xout_high_reg=None, gyro_xout_high_reg=None, power_mgmt_1_reg=None)
         Инициализация акселерометра.
@@ -48,6 +49,10 @@ class Accelerometer(object):
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
 
+        self._barometer = BMP085.BMP085(busnum=bus)
+
+        self._pressure0 = self._pressure = self._barometer.read_pressure()
+
     def get_angle(self, *angles) -> List[float]:
 
         """
@@ -80,26 +85,37 @@ class Accelerometer(object):
 
         return results
 
-    def _get_angles(self):
+    def get_altitude(self):
+        return 44330 * (1 - (self._pressure / self._pressure0) ** 0.1903)
+
+    def _update_data(self):
 
         """
         Обновляет внутренние значения углов (_pitch, _roll, _yaw) на основе показаний акселерометра и гироскопа.
         Этот метод вызывается для внутреннего пересчёта углов. Обычно не вызывается напрямую пользователем.
         """
 
-        accel_pitch, accel_roll = self.__get_accel_angles()
+        ax, ay, az = self.__get_accel_rates()
         gx, gy, gz = self.__get_gyro_rates()
 
         current_time = time.time()
         dt = current_time - self._last_time
         self._last_time = current_time
 
-        self._pitch = self.__complementary_filter(self._pitch, accel_pitch, gy, dt, alpha=0.98)
-        self._roll = self.__complementary_filter(self._roll, accel_roll, gx, dt, alpha=0.98)
+        accel_pitch = math.degrees(math.atan2(-ax, az))
+
+        accel_roll = math.degrees(math.atan2(ay, az))
+
+        self._pitch = self.__complementary_filter_pitch(self._pitch, accel_pitch, gy, dt, alpha=0.98)
+        self._roll = self.__complementary_filter_roll(self._roll, accel_roll, gx, dt, alpha=0.98)
 
         if abs(gz) > 3:
             self._yaw += gz * dt
             self._yaw = (self._yaw + 180) % 360 - 180
+
+        pressure_raw = self._barometer.read_pressure()
+        self._pressure = 0.95 * self._pressure + (1 - 0.95) * pressure_raw
+
 
     def __read_word(self, reg):
         high = self._bus.read_byte_data(self._mpu_address, reg)
@@ -111,18 +127,14 @@ class Accelerometer(object):
 
         return value
 
-    def __get_accel_angles(self):
+    def __get_accel_rates(self):
         reg = self._accel_xout_high_reg
 
         ax = self.__read_word(reg) / 16384.0
         ay = self.__read_word(reg + 2) / 16384.0
         az = self.__read_word(reg + 4) / 16384.0
 
-        pitch = math.degrees(math.atan2(-ax, math.sqrt(ay ** 2 + az ** 2)))
-
-        roll = math.degrees(math.atan2(ay, az))
-
-        return pitch, roll
+        return ax, ay, az
 
     def __get_gyro_rates(self):
         reg = self._gyro_xout_high_reg
@@ -133,7 +145,13 @@ class Accelerometer(object):
         return gx, gy, gz
 
     @staticmethod
-    def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, alpha=0.9):
-        angle = prev_angle + gyro_rate * dt
-        diff = (accel_angle - angle + 180) % 360 - 180
-        return angle + (1 - alpha) * diff
+    def __complementary_filter_roll(prev_roll, accel_roll, gyro_rate, dt, alpha=0.9):
+        roll = prev_roll + gyro_rate * dt
+        diff = (accel_roll - roll + 180) % 360 - 180
+        return roll + (1 - alpha) * diff
+
+    @staticmethod
+    def __complementary_filter_pitch(prev_pitch, accel_pitch, gyro_rate, dt, alpha=0.9):
+        pitch = prev_pitch + gyro_rate * dt
+        diff = (accel_pitch - pitch + 180) % 360 - 180
+        return pitch + (1 - alpha) * diff

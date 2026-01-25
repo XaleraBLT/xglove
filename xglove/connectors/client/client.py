@@ -13,6 +13,7 @@ class Glove_data:
         self.x = None
         self.y = None
         self.z = None
+        self.altitude = None
         self.fingers_percent = None
         self.fingers_voltage = None
         self.fingers_raw = None
@@ -53,6 +54,7 @@ class Serial_connector(Glove_data):
             self.fingers_percent = data_dict["fingers_percent"]
             self.fingers_voltage = data_dict["fingers_voltage"]
             self.fingers_raw = data_dict["fingers_raw"]
+            self.altitude = data_dict["altitude"]
 
 
 class Socket_connector(Glove_data):
@@ -95,3 +97,4 @@ class Socket_connector(Glove_data):
                     self.fingers_percent = data_dict["fingers_percent"]
                     self.fingers_voltage = data_dict["fingers_voltage"]
                     self.fingers_raw = data_dict["fingers_raw"]
+                    self.altitude = data_dict["altitude"]

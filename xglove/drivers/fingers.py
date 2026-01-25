@@ -38,8 +38,12 @@ class Fingers(object):
             raise ValueError("Finger number must be between 0 and 3 inclusive")
 
         channel = getattr(ads, f'P{finger_num}')
-        chan = AnalogIn(self._device_ads, channel)
-        return chan.voltage
+
+        try:
+            chan = AnalogIn(self._device_ads, channel)
+            return chan.voltage
+        except OSError:
+            return 0
 
     def get_finger_raw(self, finger_num: int) -> int:
         """

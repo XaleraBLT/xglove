@@ -17,6 +17,7 @@ class Glove_data(object):
         self.x = None
         self.y = None
         self.z = None
+        self.altitude = None
         self.fingers_percent = None
         self.fingers_voltage = None
         self.fingers_raw = None
@@ -35,6 +36,7 @@ class Glove_data(object):
             self.fingers_raw = dict(zip(range(4),
                                             [self._glove.get_finger_raw(finger_num) for finger_num in range(4)]))
 
+            self.altitude = self._glove.get_altitude()
             self._glove.render_data(angles=(self.x, self.y, self.z), fingers=list(self.fingers_percent.values()),
                                     text_attributes=(self.text, self._font))
             time.sleep(0.02)
@@ -44,7 +46,8 @@ class Glove_data(object):
             "angles": {"roll": self.x, "pitch": self.y, "yaw": self.z},
             "fingers_percent": self.fingers_percent,
             "fingers_voltage": self.fingers_voltage,
-            "fingers_raw": self.fingers_raw
+            "fingers_raw": self.fingers_raw,
+            "altitude": self.altitude,
         }
 
         data_bytes = json.dumps(data_dict).encode()
