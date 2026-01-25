@@ -49,7 +49,7 @@ class IMU(object):
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
 
-        self._barometer = BMP085.BMP085(busnum=bus)
+        self._barometer = BMP085.BMP085(busnum=3)
 
         self._pressure0 = self._pressure = self._barometer.read_pressure()
 
