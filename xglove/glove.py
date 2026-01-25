@@ -63,6 +63,7 @@ try:
         def __load_IMU(self):
             while True:
                 self._update_data()
+                time.sleep(0.005)
 
 except ImportError:
     class Glove(object):
