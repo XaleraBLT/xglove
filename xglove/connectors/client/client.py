@@ -7,13 +7,23 @@ import socket
 
 __all__ = ["Serial_connector", "Socket_connector"]
 
+class accel_data:
+    ax = None
+    ay = None
+    az = None
+
+class gyro_data:
+    gx = None
+    gy = None
+    gz = None
 
 class Glove_data:
     def __init__(self):
         self.x = None
         self.y = None
         self.z = None
-        self.altitude = None
+        self.accel_data = accel_data
+        self.gyro_data = gyro_data
         self.fingers_percent = None
         self.fingers_voltage = None
         self.fingers_raw = None
@@ -54,7 +64,8 @@ class Serial_connector(Glove_data):
             self.fingers_percent = data_dict["fingers_percent"]
             self.fingers_voltage = data_dict["fingers_voltage"]
             self.fingers_raw = data_dict["fingers_raw"]
-            self.altitude = data_dict["altitude"]
+            self.accel_data.ax, self.accel_data.ay, self.accel_data.az = data_dict["raw_accel"].values()
+            self.gyro_data.gx, self.gyro_data.gy, self.gyro_data.gz = data_dict["raw_gyro"].values()
 
 
 class Socket_connector(Glove_data):
@@ -97,4 +108,5 @@ class Socket_connector(Glove_data):
                     self.fingers_percent = data_dict["fingers_percent"]
                     self.fingers_voltage = data_dict["fingers_voltage"]
                     self.fingers_raw = data_dict["fingers_raw"]
-                    self.altitude = data_dict["altitude"]
+                    self.accel_data.ax, self.accel_data.ay, self.accel_data.az = data_dict["raw_accel"].values()
+                    self.gyro_data.gx, self.gyro_data.gy, self.gyro_data.gz = data_dict["raw_gyro"].values()

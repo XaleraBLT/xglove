@@ -1,77 +1,48 @@
 from __future__ import annotations
 from typing import List
-import Adafruit_BMP.BMP085 as BMP085
-
 import time
 import smbus2
 import math
 
-
 class IMU(object):
-    """
-    Класс для работы с акселерометром, гироскопом и барометром через I2C (smbus2).
-
-    __init__(bus, mpu_address=None, accel_xout_high_reg=None, gyro_xout_high_reg=None, power_mgmt_1_reg=None)
-        Инициализация акселерометра.
-        Параметры:
-            bus (smbus2.SMBus): объект шины I2C.
-            mpu_address (int, optional): I2C-адрес устройства (по умолчанию 0x68).
-            accel_xout_high_reg (int, optional): регистр акселерометра X high byte (по умолчанию 0x3B).
-            gyro_xout_high_reg (int, optional): регистр гироскопа X high byte (по умолчанию 0x43).
-            power_mgmt_1_reg (int, optional): регистр питания (по умолчанию 0x6B).
-
-        Производит включение датчика и настройку начальных регистров.
-
-    """
-
     def __init__(self,
                  bus: smbus2.SMBus,
-                 mpu_address: int = None,
-                 accel_xout_high_reg: int = None,
-                 gyro_xout_high_reg: int = None,
-                 power_mgmt_1_reg: int = None):
+                 mpu_address: int = 0x68,
+                 accel_xout_high_reg: int = 0x3B,
+                 gyro_xout_high_reg: int = 0x43,
+                 power_mgmt_1_reg: int = 0x6B,
+                 accel_config_reg: int = 0x1C
+                 ):
         self._bus = bus
-        self._mpu_address = mpu_address if mpu_address is not None else 0x68
-        self._accel_xout_high_reg = accel_xout_high_reg if accel_xout_high_reg is not None else 0x3B
-        self._gyro_xout_high_reg = gyro_xout_high_reg if gyro_xout_high_reg is not None else 0x43
-        self._power_mgmt_1_reg = power_mgmt_1_reg if power_mgmt_1_reg is not None else 0x6B
+        self._mpu_address = mpu_address
+        self._accel_xout_high_reg = accel_xout_high_reg
+        self._gyro_xout_high_reg = gyro_xout_high_reg
+        self._power_mgmt_1_reg = power_mgmt_1_reg
+        self._accel_config_reg = accel_config_reg
 
         for name, val in (("mpu_address", self._mpu_address),
                           ("accel_xout_high_reg", self._accel_xout_high_reg),
                           ("gyro_xout_high_reg", self._gyro_xout_high_reg),
-                          ("power_mgmt_1_reg", self._power_mgmt_1_reg)):
+                          ("power_mgmt_1_reg", self._power_mgmt_1_reg),
+                          ("accel_config_reg", self._accel_config_reg)):
             if not (0x00 <= val <= 0xFF):
                 raise ValueError(f"{name} must be a byte value between 0x00 and 0xFF, got {val}")
 
-        self._pitch = 0
-        self._roll = 0
-        self._yaw = 0
+
         self._last_time = time.time()
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
+        self._bus.write_byte_data(self._mpu_address, self._accel_config_reg, 0)
 
-        self._barometer = BMP085.BMP085(busnum=3)
-
-        self._pressure0 = self._pressure = self._barometer.read_pressure()
+        self.ax, self.ay, self.az = self.__get_accel_rates()
+        self._roll = math.degrees(math.atan2(self.ay, self.az))
+        self._pitch = math.degrees(math.atan2(-self.ax, self.az))
+        self._yaw = 0
 
     def get_angle(self, *angles) -> List[float]:
-
-        """
-        Получение текущих углов акселерометра и гироскопа.
-        Параметры:
-            angles (str): список имён углов, которые нужно получить. Допустимые значения:
-                "pitch" или "x" – наклон вперёд/назад,
-                "roll" или "y" – наклон влево/вправо,
-                "yaw" или "z" – вращение вокруг вертикальной оси.
-        Возвращает:
-            Список float значений углов в градусах в том же порядке, что переданы параметры.
-        Пример:
-            accel.get_angle("pitch", "roll") -> [45.0, 10.5]
-        """
-
         angles_map = {
-            "pitch": self._pitch % 360, "x": self._roll % 360,
-            "roll": self._roll % 360, "y": self._pitch % 360,
-            "yaw": self._yaw % 360, "z": self._yaw % 360
+            "roll": self._roll, "x": self._roll % 360,
+            "pitch": self._pitch, "y": self._pitch % 360,
+            "yaw": self._yaw, "z": self._yaw % 360
         }
 
         results = []
@@ -85,36 +56,23 @@ class IMU(object):
 
         return results
 
-    def get_altitude(self):
-        return 44330 * (1 - (self._pressure / self._pressure0) ** 0.1903)
-
     def _update_data(self):
-
-        """
-        Обновляет внутренние значения углов (_pitch, _roll, _yaw) на основе показаний акселерометра и гироскопа.
-        Этот метод вызывается для внутреннего пересчёта углов. Обычно не вызывается напрямую пользователем.
-        """
-
-        ax, ay, az = self.__get_accel_rates()
-        gx, gy, gz = self.__get_gyro_rates()
+        self._ax, self._ay, self._az = self.__get_accel_rates()
+        self._gx, self._gy, self._gz = self.__get_gyro_rates()
 
         current_time = time.time()
         dt = current_time - self._last_time
         self._last_time = current_time
 
-        accel_pitch = math.degrees(math.atan2(-ax, az))
+        accel_roll = math.degrees(math.atan2(self._ay, self._az))
+        accel_pitch = math.degrees(math.atan2(-self._ax, self._az))
 
-        accel_roll = math.degrees(math.atan2(ay, az))
+        self._roll = self.__complementary_filter(self._roll, accel_roll, self._gx, dt, 0.95)
+        self._pitch = self.__complementary_filter(self._pitch, accel_pitch, self._gy, dt, 0.95)
 
-        self._pitch = self.__complementary_filter_pitch(self._pitch, accel_pitch, gy, dt, alpha=0.98)
-        self._roll = self.__complementary_filter_roll(self._roll, accel_roll, gx, dt, alpha=0.98)
-
-        if abs(gz) > 3:
-            self._yaw += gz * dt
+        if abs(self._gz) > 3:
+            self._yaw += self._gz * dt
             self._yaw = (self._yaw + 180) % 360 - 180
-
-        pressure_raw = self._barometer.read_pressure()
-        self._pressure = 0.95 * self._pressure + (1 - 0.95) * pressure_raw
 
 
     def __read_word(self, reg):
@@ -145,13 +103,6 @@ class IMU(object):
         return gx, gy, gz
 
     @staticmethod
-    def __complementary_filter_roll(prev_roll, accel_roll, gyro_rate, dt, alpha=0.9):
-        roll = prev_roll + gyro_rate * dt
-        diff = (accel_roll - roll + 180) % 360 - 180
-        return roll + (1 - alpha) * diff
-
-    @staticmethod
-    def __complementary_filter_pitch(prev_pitch, accel_pitch, gyro_rate, dt, alpha=0.9):
-        pitch = prev_pitch + gyro_rate * dt
-        diff = (accel_pitch - pitch + 180) % 360 - 180
-        return pitch + (1 - alpha) * diff
+    def __complementary_filter(prev_angle, accel_angle, gyro_rate, dt, k):
+        angle = k * (prev_angle + gyro_rate * dt) + (1 - k) * accel_angle
+        return (angle + 180) % 360 - 180
