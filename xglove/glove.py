@@ -20,26 +20,6 @@ try:
 
 
     class Glove(Fingers, IMU, Interface):
-        """
-            Класс Glove объединяет функционал работы с тензорезисторами, акселерометром и OLED-дисплеем
-            в едином устройстве — перчатке-контроллере. Предназначен для считывания данных о жестах, углах
-            ориентации руки и вывода информации на экран.
-
-            Наследует:
-                Fingers — обработка данных с тензорезисторов (измерение сгиба пальцев).
-                IMU — получение углов наклона (pitch, roll, yaw) с датчика GY-87.
-                Interface — отображение данных на OLED-дисплее.
-
-            Параметры: calib_voltages (Dict, optional) — словарь с калибровочными значениями для каждого пальца.
-            Потоки:
-                При инициализации создаётся фоновый поток для постоянного обновления данных акселерометра.
-
-            Использование:
-                glove = Glove()
-                angles = glove.get_angle("pitch", "roll", "yaw")
-                fingers = [glove.get_finger_percent(p) for p in range(4)]
-                glove.render_data(angles, fingers, text_attributes=("Hello world!", font))
-            """
 
         def __init__(self, calib_raw: Dict = None):
             i2c_adc = busio.I2C(board.SCL, board.SDA)

@@ -33,9 +33,9 @@ class IMU(object):
         self._bus.write_byte_data(self._mpu_address, self._power_mgmt_1_reg, 0)
         self._bus.write_byte_data(self._mpu_address, self._accel_config_reg, 0)
 
-        self.ax, self.ay, self.az = self.__get_accel_rates()
-        self._roll = math.degrees(math.atan2(self.ay, self.az))
-        self._pitch = math.degrees(math.atan2(-self.ax, self.az))
+        self._ax, self._ay, self._az = self.__get_accel_rates()
+        self._roll = math.degrees(math.atan2(self._ay, self._az))
+        self._pitch = math.degrees(math.atan2(-self._ax, self._az))
         self._yaw = 0
 
     def get_angle(self, *angles) -> List[float]:
