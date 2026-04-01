@@ -45,7 +45,7 @@ class Glove_data(object):
                                             [self._glove.get_finger_raw(finger_num) for finger_num in range(4)]))
 
             self._glove.render_data(angles=(self.x, self.y, self.z), fingers=list(self.fingers_percent.values()),
-                                    text_attributes=(self.text, self._font, self._text_on_center))
+                                    text_attributes=(self.text, self._font, self.text_on_center))
             time.sleep(0.02)
 
     def _pack_data(self) -> bytes:
