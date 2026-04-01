@@ -34,6 +34,7 @@ class IMU(object):
         self._bus.write_byte_data(self._mpu_address, self._accel_config_reg, 0)
 
         self._ax, self._ay, self._az = self.__get_accel_rates()
+        self._gx, self._gy, self._gz = self.__get_gyro_rates()
         self._roll = math.degrees(math.atan2(self._ay, self._az))
         self._pitch = math.degrees(math.atan2(-self._ax, self._az))
         self._yaw = 0
