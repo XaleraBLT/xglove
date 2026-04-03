@@ -16,7 +16,6 @@ setup(
         'numpy==1.24.4',
         'pillow==10.4.0',
         'pyserial==3.5',
-        'Adafruit-BMP @ git+https://github.com/adafruit/Adafruit_Python_BMP.git',
         'adafruit-circuitpython-ads1x15==2.4.4; platform_machine=="armv7l" or platform_machine=="aarch64"',
         'luma.oled==3.14.0; platform_machine=="armv7l" or platform_machine=="aarch64"',
         'smbus2==0.5.0; platform_machine=="armv7l" or platform_machine=="aarch64"',
