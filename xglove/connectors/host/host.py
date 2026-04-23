@@ -11,10 +11,17 @@ __all__ = ["Serial_connector", "Socket_connector"]
 
 
 class Glove_data(object):
-    def __init__(self, glove: Glove):
+    def __init__(self, glove: Glove, font: ImageFont.ImageFont = None, text_on_center: bool = True):
         self._glove = glove
-        self._font = ImageFont.load_default()
+        self._font = ImageFont.load_default() if font is None else font
+        self.text_on_center = text_on_center
         self.x = None
+        self.ax = None
+        self.ay = None
+        self.az = None
+        self.gx = None
+        self.gy = None
+        self.gz = None
         self.y = None
         self.z = None
         self.fingers_percent = None
@@ -28,6 +35,8 @@ class Glove_data(object):
     def __main_loop(self):
         while True:
             self.x, self.y, self.z = self._glove.get_angle("x", "y", "z")
+            self.ax, self.ay, self.az = self._glove._ax, self._glove._ay, self._glove._az
+            self.gx, self.gy, self.gz = self._glove._gx, self._glove._gy, self._glove._gz
             self.fingers_percent = dict(zip(range(4),
                                             [self._glove.get_finger_percent(finger_num) for finger_num in range(4)]))
             self.fingers_voltage = dict(zip(range(4),
@@ -36,7 +45,7 @@ class Glove_data(object):
                                             [self._glove.get_finger_raw(finger_num) for finger_num in range(4)]))
 
             self._glove.render_data(angles=(self.x, self.y, self.z), fingers=list(self.fingers_percent.values()),
-                                    text_attributes=(self.text, self._font))
+                                    text_attributes=(self.text, self._font, self.text_on_center))
             time.sleep(0.02)
 
     def _pack_data(self) -> bytes:
@@ -44,7 +53,9 @@ class Glove_data(object):
             "angles": {"roll": self.x, "pitch": self.y, "yaw": self.z},
             "fingers_percent": self.fingers_percent,
             "fingers_voltage": self.fingers_voltage,
-            "fingers_raw": self.fingers_raw
+            "fingers_raw": self.fingers_raw,
+            "raw_accel": {"ax": self.ax, "ay": self.ay, "az": self.az},
+            "raw_gyro": {"gx": self.gx, "gy": self.gy, "gz": self.gz},
         }
 
         data_bytes = json.dumps(data_dict).encode()

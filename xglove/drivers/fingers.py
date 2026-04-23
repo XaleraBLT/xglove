@@ -7,16 +7,6 @@ import numpy as np
 
 
 class Fingers(object):
-    """
-        Класс для работы с тензорезисторами, подключёнными к АЦП ADS1115, с поддержкой калибровки
-        и преобразования напряжений в процент изгиба.
-
-        Аргументы конструктора:
-            device (ads.ADS1115): Экземпляр ADS1115 для чтения напряжений.
-            calib_raw (Dict[str, List[List]]):
-                Словарь с калибровочными точками для каждого пальца, где ключ — номер пальца от 0 до 3-х (строка),
-                а значение — список из 5 точек [0-25-50-75-100], используемых для калибровки.
-    """
     def __init__(self, device: ads.ADS1115, calib_raw: Dict[Dict[str, List[List]]]):
         self._device_ads = device
         self._calib_raw = calib_raw
@@ -29,37 +19,30 @@ class Fingers(object):
             self._polynomials[str(finger_num)] = np.poly1d(np.polyfit(x_sorted, y_sorted, 2))
 
     def get_finger_voltage(self, finger_num: int) -> float:
-        """
-            Возвращает текущее напряжение (в вольтах) с датчика, привязанного к указанному пальцу.
-            Параметр finger_num должен быть от 0 до 3 включительно.
-        """
-
         if finger_num < 0 or finger_num > 3:
             raise ValueError("Finger number must be between 0 and 3 inclusive")
 
         channel = getattr(ads, f'P{finger_num}')
-        chan = AnalogIn(self._device_ads, channel)
-        return chan.voltage
+
+        try:
+            chan = AnalogIn(self._device_ads, channel)
+            return chan.voltage
+        except OSError:
+            return 0
 
     def get_finger_raw(self, finger_num: int) -> int:
-        """
-            Возвращает текущее значение (-32768 … +32767) с датчика, привязанного к указанному пальцу.
-            Параметр finger_num должен быть от 0 до 3 включительно.
-        """
         if finger_num < 0 or finger_num > 3:
             raise ValueError("Finger number must be between 0 and 3 inclusive")
 
         channel = getattr(ads, f'P{finger_num}')
-        chan = AnalogIn(self._device_ads, channel)
 
-        return chan.value & 0xFFFF
+        try:
+            chan = AnalogIn(self._device_ads, channel)
+            return chan.value & 0xFFFF
+        except OSError:
+            return -32768
 
     def get_finger_percent(self, finger_num: int) -> float:
-        """
-            Преобразует текущее напряжение в процент изгиба пальца, используя полиномиальную аппроксимацию
-            и ограничения, полученные при калибровке.
-            Гарантирует, что результат всегда находится в диапазоне от 0.0 до 100.0 %.
-        """
         if finger_num < 0 or finger_num > 3:
             raise ValueError("Finger number must be between 0 and 3 inclusive")
 
@@ -73,5 +56,3 @@ class Fingers(object):
         if raw_value <= min(x_vals):
             return 100.0
         return max(0.0, min(100.0, self._polynomials[key](raw_value)))
-
-        return percent
